@@ -21,6 +21,8 @@ def code(address):
 if __name__ == '__main__':
     # 切换工作目录，读取放有地址或地名的文本
     os.chdir("C:\\work\\Mike\\pythoncode")
+    with open('C:\\work\\Mike\\pythoncode\\result.txt', 'w', encoding='utf8') as ResultFile:
+        pass
     # 只读方式打开文本（以UTF8格式打开）
     with open('addr.txt', 'r', encoding='utf8') as AddrFile:
         # 循环读取文件的每一行到变量line
