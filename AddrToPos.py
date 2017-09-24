@@ -4,7 +4,7 @@ import requests,os
 
 def code(address):
     # address为传入要查询的地址，KEY为我自己在高德申请的开发者KEY
-    parameters = {'address': address, 'key': '234877e0e20d09d9467f1eacaa4c646c'}
+    parameters = {'address': address, 'key': '###'}
     # 地理/逆地理编码的接口地址
     base = 'http://restapi.amap.com/v3/geocode/geo'
     # 用requests.get方法获得接口返回结果
