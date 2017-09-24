@@ -21,6 +21,7 @@ def code(address):
 if __name__ == '__main__':
     # 切换工作目录，读取放有地址或地名的文本
     os.chdir("C:\\work\\Mike\\pythoncode")
+    # 新建保存结果的文件
     with open('C:\\work\\Mike\\pythoncode\\result.txt', 'w', encoding='utf8') as ResultFile:
         pass
     # 只读方式打开文本（以UTF8格式打开）
