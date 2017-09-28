@@ -5,15 +5,15 @@ import os, re, urllib
 
 class GetSanti:
     def __init__(self, WebUrl):
-        #print("输入网址：")
-        #WebUrl = "http://www.luoxia.com/santi/26652.htm"
         self.WebUrl = WebUrl
         print('正在获取内容，请稍后')
+        # 获取网页内容，转换成UTF8
         WebPage = urllib.request.urlopen(WebUrl)
         WebData = WebPage.read()
         WebData = WebData.decode("UTF-8")
         WebContent = BeautifulSoup(WebData, "html.parser")
 
+        # 判断文本是否存在
         FileDir = "C:\\tmp\\Santi.txt"
         if os.path.exists(FileDir) is not True:
             with open(FileDir, "w", encoding='UTF-8') as File:
@@ -36,7 +36,7 @@ class GetSanti:
                     GoodParts = re.sub(r'<p>|</p>', '', str(Parts))
                     with open("Santi.txt", "a", encoding='UTF-8') as File:
                         File.write(GoodParts.strip() + '\n')
-
+            # 找下一页
             FindNextPage = WebContent.find('li', class_='next')
             NextPageUrl = FindNextPage.find('a').get('href')
             return GetSanti(NextPageUrl)
