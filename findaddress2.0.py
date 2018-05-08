@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import requests, os, re, time, random
+import requests, os, time, random
 
 def check_file(path):
     '''
