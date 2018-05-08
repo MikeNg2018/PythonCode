@@ -72,9 +72,11 @@ def get_shop(url, FilePath):
 
     print('\n\n处理完毕，请到' + FilePath + '中找到结果\n\n')
 
+
 print('使用说明：')
 print('输入网址（例如这类网址：https://www.dianping.com/search/keyword/4/10_%E9%BA%A6%E5%BD%93%E5%8A%B3）')
 print('输入路径和文件（例如：D:\\tmp\info.txt）')
+
 url = input('请输入网址：\n')
 filepath = input('请输入路径：\n')
 
