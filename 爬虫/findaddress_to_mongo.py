@@ -5,10 +5,17 @@ import time
 import random
 import pymongo
 
-client = pymongo.MongoClient('mongodb://usr:pwd@ip:27017')
-# get_addr = client['get_addr']
-dianping = client['dianping']
+host = ''
+port =
+user = ''
+passwd = ''
+dbname = 'python'
 
+client = pymongo.MongoClient("%s:%d" %(host,port))
+client[dbname].authenticate(user,passwd,dbname,mechanism='SCRAM-SHA-1')
+
+db = client['python']
+dianping = db['dianping']
 
 def get_shop(url):
     '''
@@ -32,16 +39,15 @@ def get_shop(url):
     shop_area_text = shop_area[1::2]
 
     # 将结果保存在字典，在逐行写入文件
-    for name, area, addr, number in zip(
-            shop_name, shop_area_text, shop_addr, review_num):
+    for name, area, addr in zip(
+            shop_name, shop_area_text, shop_addr):
         data = {
             'ShopName': name.get_text(),
             'Area': area.get_text(),
             'ShopAddr': addr.get_text()
         }
         print(data)
-    # print('Name: %s, Area: %s, Address: %s' %(shop_name, shop_area_text, shop_addr))
-
+        dianping.insert_one({"ShopName":data['ShopName'], "Area":data['Area'], "ShopAddr":data['ShopAddr']})
 
     # 找出下一页Url，返回给get_shop函数
     try:
