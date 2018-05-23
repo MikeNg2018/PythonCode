@@ -5,11 +5,23 @@
     <title>Django测试</title>
 </head>
 <body>
-    Hello World!<br />
-    {{ string }}<br />
-    列表：<br />
+    Hello World!<br>
+    {{ string }}<br>
+    列表：<br>
     {% for i in TutorialList %}
     {{ i }} <br />
     {% endfor %}
+
+    {% if var >= 60 %}
+    Good<br>
+        {% else %}
+        Not good<br>
+    {% endif %}
+
+    {{ var }}
+    <br>
+    {% url 'add' 4 5 %}
+    <br>
+    {{ request.GET.urlencode }}
 </body>
 </html>
