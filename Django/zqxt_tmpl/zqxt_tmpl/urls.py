@@ -19,6 +19,8 @@ from learn import views as learn_views
 from django.conf.urls import include, url
 
 urlpatterns = [
+    url(r'^add/(\d+)/(\d+)/$', learn_views.add, name='add'),
+    # 两种方式：url和path,
     # url(r'^$', learn_views.home, name='home'),
     path('', learn_views.home, name='home'),
     # url(r'^admin/', include(admin)),
