@@ -86,8 +86,7 @@ def get_link(url):
     for i in hospital_url:
         hospital_info_page_url = 'http://yyk.39.net' + i.get('href')
         hospital_page_list.append(hospital_info_page_url)
-
-
+		
     time.sleep(1)
 
 
