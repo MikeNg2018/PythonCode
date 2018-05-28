@@ -1,20 +1,33 @@
-def make_url_list(u_link, total_pages):
-    # 以c_p为分隔符拆分URL
-    sp = u_link.split('c_p')
-    u_link_part1 = sp[0]
-    u_link_part2 = sp[1]
+from bs4 import BeautifulSoup
+import requests
+import re
 
-    # 第二部分以/分隔，提取第二部分
-    page_split = u_link_part2.split('/')
-    url_end_part = page_split[1]
+def get_info(hospital_url):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36',
+        'Cookie': "_webyyk_areaId=44; _webyyk_areaSpelling=guangdong; userLikesIdTemp=1527342610643; JSESSIONID=abcxEWkx755q2gzTFDFow; hisHos=24338"}
 
-    # 创建空列表存放处理后的URL
-    all_url = []
+    wb_data = requests.get(hospital_url, headers=headers)
+    soup = BeautifulSoup(wb_data.text, 'lxml')
 
-    # 总页数从外部传入，生成以第二页开始，总页数为止的URL，存入列表
-    for pages in range(2, total_pages+1):
-        finall_url = "{}{}{}{}{}".format(u_link_part1, "c_p", pages, "/", url_end_part)
-        all_url.append(finall_url)
-        # print(finall_url)
+    hospital_name = soup.select('body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_intro > div > div.l > h2')[0]
+    hospital_address = soup.select('body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_main > div.jy_hspt_main_l > div.hspt_left_p1 > div.hspt_infor > div.r > table ')[0]
+    hospital_outpatient = soup.select('body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_main > div.jy_hspt_main_l > div.hspt_left_p1 > div.xinxi.xinxi2 > ul > li.x3 > cite > font')[0].text
 
-    # print(all_url)
+    name = re.compile(r'(<h2>)(.*)(<span>)').search(str(hospital_name)).group(2)
+    address = re.compile(r'(<td>)(.*)(</td>)').search(str(hospital_address)).group(2)
+
+    print("名：", name)
+    print("地址：", address)
+    print("门诊量：", hospital_outpatient)
+
+URL = 'http://yyk.39.net/gz/zonghe/550b5.html'
+
+get_info(URL)
+
+
+
+'''
+
+body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_main > div.jy_hspt_main_l > div.hspt_left_p1 > div.hspt_infor > div.r > table > tbody > tr:nth-child(2) > td:nth-child(2)
+'''

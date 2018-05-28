@@ -4,11 +4,48 @@ from urllib.parse import quote
 import re
 import time
 
+# 用作存放医院页URL
+hospital_page_list = []
+
+
+def get_info(hospital_url):
+    """
+    功能：查找每个医院名称，地址和门诊量
+    :param hospital_url:传入每家医院的URL
+    :return:将需要的信息打印到屏幕
+    """
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36',
+        'Cookie': "_webyyk_areaId=44; _webyyk_areaSpelling=guangdong; userLikesIdTemp=1527342610643; JSESSIONID=abcxEWkx755q2gzTFDFow; hisHos=24338"}
+
+    wb_data = requests.get(hospital_url, headers=headers)
+    soup = BeautifulSoup(wb_data.text, 'lxml')
+
+    hospital_name = soup.select('body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_intro > div > div.l > h2')[0]
+
+    name = re.compile(r'(<h2>)(.*)(<span>)').search(str(hospital_name)).group(2)
+
+    hospital_address = soup.select(
+        'body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_main > div.jy_hspt_main_l > div.hspt_left_p1 > div.hspt_infor > div.r > table ')[0]
+    address = re.compile(r'(<td>)(.*)(</td>)').search(str(hospital_address)).group(2)
+
+    try:
+        hospital_outpatient = soup.select('body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_main > div.jy_hspt_main_l > div.hspt_left_p1 > div.xinxi.xinxi2 > ul > li.x3 > cite > font')[0].text
+
+    except IndexError:
+        hospital_outpatient = 'None'
+
+    print("名：", name)
+    print("地址：", address)
+    print("门诊量：", hospital_outpatient)
+
 
 def find_total_pages(url):
-    '''
-    查总页数
-    '''
+    """
+    查找总页数
+    :param url: 传入URL
+    :return: 返回总页数
+    """
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36',
         'Cookie': "_webyyk_areaId=44; _webyyk_areaSpelling=guangdong; userLikesIdTemp=1527342610643; JSESSIONID=abcxEWkx755q2gzTFDFow; hisHos=24338"}
@@ -30,6 +67,11 @@ def find_total_pages(url):
 
 
 def get_link(url):
+    """
+    查找每页医院的URL
+    :param url:
+    :return:
+    """
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36',
         'Cookie': "_webyyk_areaId=44; _webyyk_areaSpelling=guangdong; userLikesIdTemp=1527342610643; JSESSIONID=abcxEWkx755q2gzTFDFow; hisHos=24338"}
@@ -42,12 +84,20 @@ def get_link(url):
         'body > div.serach-wrap > div > div.serach-left > div.serach-left-list > ul > li > a')
 
     for i in hospital_url:
-        print('http://yyk.39.net' + i.get('href'))
+        hospital_info_page_url = 'http://yyk.39.net' + i.get('href')
+        hospital_page_list.append(hospital_info_page_url)
+
 
     time.sleep(1)
 
 
 def find_each_page(url, total_pages_number):
+    """
+    找出每一分页的URL
+    :param url:
+    :param total_pages_number:
+    :return:
+    """
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36',
         'Cookie': "_webyyk_areaId=44; _webyyk_areaSpelling=guangdong; userLikesIdTemp=1527342610643; JSESSIONID=abcxEWkx755q2gzTFDFow; hisHos=24338"}
@@ -84,7 +134,6 @@ def find_each_page(url, total_pages_number):
         url_end_part = page_split[1]
 
         # 创建空列表存放处理后的URL，并存入第一页的URL
-
         all_url = []
         all_url.append(url)
 
@@ -104,21 +153,27 @@ def find_each_page(url, total_pages_number):
         get_link(url)
 
 
-url = "http://yyk.39.net/guangdong/hospitals/?name=%B8%DF%C3%F7"
-
+url = "http://yyk.39.net/guangdong/hospitals/?name=%C8%FD%CB%AE"
+# 找出总页数
 total_pages_number = find_total_pages(url)
-
+# 找每页医院的URL
 find_each_page(url, total_pages_number)
+# 将每家医院的URL传给get_info提取数据
+for eachUrl in range(0,len(hospital_page_list)):
+    get_info(hospital_page_list[eachUrl])
+    time.sleep(1)
 
-# get_link(url, total_pages_number)
 
 
 '''
 body > div.serach-wrap > div > div.serach-left > div.serach-left-list > div > div.pages > cite
-http://yyk.39.net/guangdong/hospitals/c_p2/?name=%B9%E3%D6%DD
+http://yyk.39.net/guangdong/hospitals/?name=%B9%E3%D6%DD
 http://yyk.39.net/guangdong/hospitals/c_p2/?name=%B9%E3%D6%DD
 http://yyk.39.net/guangdong/hospitals/c_p3/?name=%B9%E3%D6%DD
 %B9%E3%D6%DD
+
+24页
+http://yyk.39.net/guangdong/hospitals/?name=%B9%E3%D6%DD
 
 4页
 http://yyk.39.net/guangdong/hospitals/?name=%C8%FD%CB%AE
