@@ -3,12 +3,39 @@ import requests
 from urllib.parse import quote
 import re
 import time
+import os
 
 # 用作存放医院页URL
 hospital_page_list = []
 
 
-def get_info(hospital_url):
+# 新建文件存放结果，如果存在，文件名加_new
+
+
+def check_file(path):
+    """
+    检查输入路径的文件夹和文件是否存在，不存在自动创建
+    :param path:
+    :return:
+    """
+    path = path.strip()
+    path_dirname = os.path.dirname(path)
+    is_exists = os.path.exists(path_dirname)
+
+    if not is_exists:
+        # 目录不存在时，创建目录和文件
+        os.makedirs(path_dirname)
+        if os.path.exists(path) is not True:
+            with open(path, 'w') as resultFile:
+                pass
+    else:
+        # 目录存在时，创建文件
+        if os.path.exists(path) is not True:
+            with open(path, 'w') as resultFile:
+                pass
+
+
+def get_info(hospital_url, file_path):
     """
     功能：查找每个医院名称，地址和门诊量
     :param hospital_url:传入每家医院的URL
@@ -21,23 +48,42 @@ def get_info(hospital_url):
     wb_data = requests.get(hospital_url, headers=headers)
     soup = BeautifulSoup(wb_data.text, 'lxml')
 
-    hospital_name = soup.select('body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_intro > div > div.l > h2')[0]
+    hospital_name = soup.select(
+        'body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_intro > div > div.l > h2')[0]
 
-    name = re.compile(r'(<h2>)(.*)(<span>)').search(str(hospital_name)).group(2)
+    name = re.compile(
+        r'(<h2>)(.*)(<span>)').search(str(hospital_name)).group(2)
 
     hospital_address = soup.select(
         'body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_main > div.jy_hspt_main_l > div.hspt_left_p1 > div.hspt_infor > div.r > table ')[0]
-    address = re.compile(r'(<td>)(.*)(</td>)').search(str(hospital_address)).group(2)
+    address = re.compile(
+        r'(<td>)(.*)(</td>)').search(str(hospital_address)).group(2)
 
     try:
-        hospital_outpatient = soup.select('body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_main > div.jy_hspt_main_l > div.hspt_left_p1 > div.xinxi.xinxi2 > ul > li.x3 > cite > font')[0].text
+        hospital_outpatient = soup.select(
+            'body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_main > div.jy_hspt_main_l > div.hspt_left_p1 > div.xinxi.xinxi2 > ul > li.x3 > cite > font')[0].text
 
     except IndexError:
         hospital_outpatient = 'None'
 
+    try:
+        bed_number = soup.select(
+            'body > div.jy_hspt_mid > div.wid1000 > div.jy_hspt_main > div.jy_hspt_main_l > div.hspt_left_p1 > div.xinxi.xinxi2 > ul > li.x1 > cite > font')[0].text
+    except IndexError:
+        bed_number = 'None'
+
+
+    result = name + ',' + address + ',' + hospital_outpatient + ',' + bed_number + '\n'
+
+    check_file(file_path)
+    with open(file_path, 'a') as resultFile:
+        resultFile.write(result)
+
+
     print("名：", name)
     print("地址：", address)
     print("门诊量：", hospital_outpatient)
+    print("床位数：", bed_number)
 
 
 def find_total_pages(url):
@@ -86,7 +132,7 @@ def get_link(url):
     for i in hospital_url:
         hospital_info_page_url = 'http://yyk.39.net' + i.get('href')
         hospital_page_list.append(hospital_info_page_url)
-		
+
     time.sleep(1)
 
 
@@ -152,24 +198,45 @@ def find_each_page(url, total_pages_number):
         get_link(url)
 
 
-url = "http://yyk.39.net/guangdong/hospitals/?name=%C8%FD%CB%AE"
-# 找出总页数
-total_pages_number = find_total_pages(url)
-# 找每页医院的URL
-find_each_page(url, total_pages_number)
-# 将每家医院的URL传给get_info提取数据
-for eachUrl in range(0,len(hospital_page_list)):
-    get_info(hospital_page_list[eachUrl])
-    time.sleep(1)
+def write_file():
+    pass
+
+
+# url = "http://yyk.39.net/guangdong/hospitals/?name=%C8%FD%CB%AE"
+print('使用说明：')
+print('输入网址：例如：http://yyk.39.net/guangdong/hospitals/?name=%C8%FD%CB%AE')
+print('输入路径和文件，双反斜杠（例如：D:\\\\tmp\\\\info.txt）')
+
+try:
+
+    print("===================")
+    url = input("输入网址>>>>")
+    file_path = input("输入路径和文件>>>>")
+    print("===================")
+
+    # 找出总页数
+    total_pages_number = find_total_pages(url)
+    # 找每页医院的URL
+    find_each_page(url, total_pages_number)
+    # 将每家医院的URL传给get_info提取数据
+    for eachUrl in range(0, len(hospital_page_list)):
+        get_info(hospital_page_list[eachUrl], file_path)
+        time.sleep(1)
+
+
+except KeyboardInterrupt:
+    print('\n')
+    print("=============Bye=============")
+    print('\n')
+else:
+    print('\n\n')
+    print("=============Finish==============")
+    print('请到:%s查看结果' %file_path)
+    print('\n\n')
 
 
 
 '''
-body > div.serach-wrap > div > div.serach-left > div.serach-left-list > div > div.pages > cite
-http://yyk.39.net/guangdong/hospitals/?name=%B9%E3%D6%DD
-http://yyk.39.net/guangdong/hospitals/c_p2/?name=%B9%E3%D6%DD
-http://yyk.39.net/guangdong/hospitals/c_p3/?name=%B9%E3%D6%DD
-%B9%E3%D6%DD
 
 24页
 http://yyk.39.net/guangdong/hospitals/?name=%B9%E3%D6%DD
