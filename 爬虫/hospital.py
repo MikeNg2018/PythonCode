@@ -72,9 +72,10 @@ def get_info(hospital_url, file_path):
     except IndexError:
         bed_number = 'None'
 
-
+    # 生成结果
     result = name + ',' + address + ',' + hospital_outpatient + ',' + bed_number + '\n'
 
+    # 检查文件是否存在，然后写入数据
     check_file(file_path)
     with open(file_path, 'a') as resultFile:
         resultFile.write(result)
@@ -206,27 +207,32 @@ def write_file():
 print('使用说明：')
 print('输入网址：例如：http://yyk.39.net/guangdong/hospitals/?name=%C8%FD%CB%AE')
 print('输入路径和文件，双反斜杠（例如：D:\\\\tmp\\\\info.txt）')
+print('停止程序：Ctrl+C')
 
 try:
-
-    print("===================")
-    url = input("输入网址>>>>")
-    file_path = input("输入路径和文件>>>>")
-    print("===================")
-
-    # 找出总页数
-    total_pages_number = find_total_pages(url)
-    # 找每页医院的URL
-    find_each_page(url, total_pages_number)
-    # 将每家医院的URL传给get_info提取数据
-    for eachUrl in range(0, len(hospital_page_list)):
-        get_info(hospital_page_list[eachUrl], file_path)
-        time.sleep(1)
-
+    while True:
+        print("===================")
+        url = input("输入网址（必填）>>>>")
+        file_path = input("输入路径和文件（必填）>>>>")
+        print("===================")
+        if url and file_path:
+            # 找出总页数
+            print("正在获取数据，请稍后……")
+            total_pages_number = find_total_pages(url)
+            # 找每页医院的URL
+            find_each_page(url, total_pages_number)
+            # 将每家医院的URL传给get_info提取数据
+            for eachUrl in range(0, len(hospital_page_list)):
+                get_info(hospital_page_list[eachUrl], file_path)
+                time.sleep(1)
+            break
+        else:
+            print("=====网址和路径不能为空，请重新输入=====")
+            continue
 
 except KeyboardInterrupt:
     print('\n')
-    print("=============Bye=============")
+    print("=============已手动停止，Bye!!!=============")
     print('\n')
 else:
     print('\n\n')
