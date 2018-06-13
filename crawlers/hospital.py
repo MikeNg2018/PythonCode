@@ -202,14 +202,15 @@ def find_each_page(url, total_pages_number):
 # url = "http://yyk.39.net/guangdong/hospitals/?name=%C8%FD%CB%AE"
 print('使用说明：')
 print('输入网址：例如：http://yyk.39.net/guangdong/hospitals/?name=%C8%FD%CB%AE')
-print('输入路径和文件，双反斜杠（例如：D:\\\\tmp\\\\info.txt）')
+print('输入路径和文件，例如：D:\\tmp\\info.txt）')
 print('停止程序：Ctrl+C')
 
 try:
     while True:
         print("===================")
         url = input("输入网址（必填）>>>>")
-        file_path = input("输入路径和文件（必填）>>>>")
+        new_input = input("输入路径和文件（必填，只能填Windows下的路径）>>>>")
+        file_path = eval(repr(new_input).replace('\\', '\\\\'))
         print("===================")
         if url and file_path:
             # 找出总页数
@@ -233,7 +234,7 @@ except KeyboardInterrupt:
 else:
     print('\n\n')
     print("=============Finish==============")
-    print('请到:%s查看结果' %file_path)
+    print('请到:%s查看结果' %new_input)
     print('\n\n')
 
 
